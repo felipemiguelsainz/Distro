@@ -52,6 +52,23 @@ supabase/functions/          # Edge Functions de scoring (deploy aparte)
 Crear el primer usuario en **Authentication** y vincularlo en `app_users`
 (ver nota al pie de `seed.sql`).
 
+## 3. Alertas diarias (email + in-app)
+
+La Edge Function `alertas-diarias` se despliega en el proyecto **MAESTRO** (itera
+todos los tenants y se conecta a cada uno con su service role):
+
+```bash
+supabase functions deploy alertas-diarias        # cron en config.toml (8:00 UTC)
+supabase secrets set RESEND_API_KEY=re_... \
+                     ALERTAS_FROM_EMAIL=alertas@distro.app \
+                     ALERTAS_FROM_NAME=Distro \
+                     APP_URL=https://app.distro.app
+```
+
+Cada tenant debe tener la tabla `alertas` (incluida en `schema.sql` + `rls.sql`).
+Las alertas se insertan con el service role y se muestran a supervisores/admins
+en el badge del sidebar (junto a Intelligence) y por email vía Resend.
+
 ## Notas de seguridad
 
 - La tabla `tenants` de la maestra tiene RLS `deny all`: solo el service role

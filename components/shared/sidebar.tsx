@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useTenant } from "./tenant-provider";
+import { AlertasPanel } from "./alertas-panel";
 import { cn } from "@/lib/utils";
-import type { DistroModule, UserRole } from "@/lib/supabase/types";
+import type { Alerta, DistroModule, UserRole } from "@/lib/supabase/types";
 
 interface NavItem {
   label: string;
@@ -25,7 +26,7 @@ const NAV: NavItem[] = [
   { label: "Admin", href: "/admin/onboarding", icon: "ti-settings", roles: ["admin", "super_admin"] },
 ];
 
-export function Sidebar({ rol }: { rol: UserRole }) {
+export function Sidebar({ rol, alertas = [] }: { rol: UserRole; alertas?: Alerta[] }) {
   const { config, hasModule } = useTenant();
   const pathname = usePathname();
   const base = `/${config.slug}`;
@@ -51,12 +52,17 @@ export function Sidebar({ rol }: { rol: UserRole }) {
           const href = `${base}${item.href}`;
           const active = pathname.startsWith(href);
           return (
-            <div key={item.href}>
+            <div key={item.href} className="relative">
               {item.label === "Admin" && <div className="app-nav-sep" />}
               <Link href={href} className={cn("app-nav-item", active && "active")}>
                 <i className={cn("ti", item.icon)} />
                 {item.label}
               </Link>
+              {item.label === "Intelligence" && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                  <AlertasPanel slug={config.slug} alertas={alertas} />
+                </div>
+              )}
             </div>
           );
         })}

@@ -1,0 +1,2 @@
+[functions.alertas-diarias]
+schedule = "0 8 * * *"   # todos los días a las 8:00 UTC (11:00 Argentina)

@@ -174,6 +174,26 @@ export interface Recomendacion {
   generada_at: string;
 }
 
+export type AlertaTipo =
+  | "vendedor_caida"
+  | "cliente_sin_compra"
+  | "ccc_bajo"
+  | "facturacion_caida";
+
+export type AlertaSeveridad = "alta" | "media" | "baja";
+
+export interface Alerta {
+  id: string;
+  tipo: AlertaTipo;
+  titulo: string;
+  detalle: string;
+  severidad: AlertaSeveridad;
+  leida: boolean;
+  enviada: boolean;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // Tenant Database type (shape consumido por supabase-js)
 // ---------------------------------------------------------------------------
@@ -214,6 +234,7 @@ export interface TenantDatabase {
     metas: Table<Meta>;
     app_users: Table<AppUser>;
     recomendaciones: Table<Recomendacion>;
+    alertas: Table<Alerta>;
   }>;
 }
 

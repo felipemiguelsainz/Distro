@@ -56,6 +56,7 @@ alter table public.resumen_diario    enable row level security;
 alter table public.cliente_metricas  enable row level security;
 alter table public.metas             enable row level security;
 alter table public.recomendaciones   enable row level security;
+alter table public.alertas           enable row level security;
 
 -- ---------------------------------------------------------------------------
 -- app_users: cada uno se ve a sí mismo; admin ve y gestiona a todos.
@@ -237,3 +238,18 @@ create policy recomendaciones_read on public.recomendaciones
 drop policy if exists recomendaciones_admin on public.recomendaciones;
 create policy recomendaciones_admin on public.recomendaciones
   for all using (public.is_admin()) with check (public.is_admin());
+
+-- ---------------------------------------------------------------------------
+-- alertas: supervisores y admins LEEN y marcan como leídas las alertas del
+-- tenant. La inserción la hace SOLO el service role (Edge Function), que
+-- bypassa RLS: por eso no hay policy de insert.
+-- ---------------------------------------------------------------------------
+drop policy if exists alertas_read on public.alertas;
+create policy alertas_read on public.alertas
+  for select using (public.is_admin() or public.is_supervisor());
+
+drop policy if exists alertas_update on public.alertas;
+create policy alertas_update on public.alertas
+  for update
+  using (public.is_admin() or public.is_supervisor())
+  with check (public.is_admin() or public.is_supervisor());

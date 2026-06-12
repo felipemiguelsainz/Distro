@@ -192,3 +192,22 @@ create table if not exists public.recomendaciones (
   generada_at       timestamptz not null default now()
 );
 create index if not exists recomendaciones_prioridad_idx on public.recomendaciones (prioridad desc);
+
+-- ---------------------------------------------------------------------------
+-- Alertas diarias (generadas por la Edge Function `alertas-diarias` y enviadas
+-- por email a supervisores/admins). El recálculo nunca las toca.
+-- ---------------------------------------------------------------------------
+create table if not exists public.alertas (
+  id          uuid primary key default gen_random_uuid(),
+  tipo        text not null,
+  -- 'vendedor_caida' | 'cliente_sin_compra' | 'ccc_bajo' | 'facturacion_caida'
+  titulo      text not null,
+  detalle     text not null,
+  severidad   text not null default 'media', -- 'alta' | 'media' | 'baja'
+  leida       boolean not null default false,
+  enviada     boolean not null default false,
+  metadata    jsonb,
+  created_at  timestamptz not null default now()
+);
+create index if not exists alertas_created_idx on public.alertas (created_at desc);
+create index if not exists alertas_no_leidas_idx on public.alertas (leida) where not leida;
